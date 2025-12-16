@@ -11,7 +11,6 @@ const app = {
         participants: new Set(),
         cart: [],
         
-        // --- LISTA DE VENDAS (ARMAS) ---
         products: [ 
             { name: "Fn Five Seven (PT)", min: 53000,  max: 63600,  weight: 1.5 },
             { name: "HK P7M10 (Fajuta)",  min: 45000,  max: 55000,  weight: 1.0 },
@@ -24,9 +23,6 @@ const app = {
             { name: "Mossberg 590",       min: 260000, max: 280000, weight: 6.0 }
         ],
         
-        // --- RECEITAS DE PRODUÇÃO ---
-        // OBS: CUSTO POR RECEITA (QUE RENDE 2 ARMAS)
-        // Ordem dos Materiais: [Alumínio, Cobre, Materiais, Projeto]
         recipes: [
             { name: "Fn Five Seven",   mats: [17, 13, 26, 25], weight: 1.5 },
             { name: "HK P7M10",        mats: [17, 13, 26, 25], weight: 1.0 },
@@ -84,7 +80,6 @@ const app = {
         }, 3000);
     },
 
-    // --- COPIA ROBUSTA ---
     copyAdText: function(element) {
         const textToCopy = element.innerText;
         if (navigator.clipboard && window.isSecureContext) {
@@ -116,7 +111,6 @@ const app = {
         document.body.removeChild(textArea);
     },
 
-    // --- AÇÕES ---
     handleEnterParticipant: function(e) { if (e.key === 'Enter') this.addParticipant(); },
     addParticipant: function() {
         const input = document.getElementById('novo-participante');
@@ -188,7 +182,6 @@ const app = {
         this.sendToDiscord(WEBHOOK_SECUNDARIA, payloadLog, null);
     },
 
-    // --- VENDAS ---
     renderProductOptions: function(productsToRender) {
         const select = document.getElementById('venda-produto');
         select.innerHTML = '<option value="" disabled selected>Selecione o produto...</option>';
@@ -334,18 +327,21 @@ const app = {
         this.sendToDiscord(WEBHOOK_SECUNDARIA, payloadLog, null);
     },
 
-    // --- PRODUÇÃO ---
+    // --- FUNÇÕES DE PRODUÇÃO E IMPORTAÇÃO ---
     initProductionTable: function() {
         const tbody = document.querySelector('#tabela-producao tbody');
+        if(!tbody) return;
         tbody.innerHTML = ''; 
         this.data.recipes.forEach((r, idx) => {
             tbody.innerHTML += `<tr class="prod-row" data-name="${r.name.toLowerCase()}">
-                <td>${r.name}</td>
-                <td><input type="number" min="0" class="prod-input" data-idx="${idx}" oninput="app.calculateProduction()"></td>
-                ${r.mats.map(m => `<td>${m}</td>`).join('')}
+                <td style="font-weight:bold; color:#fff;">${r.name}</td>
+                <td style="text-align:center;">
+                    <input type="number" min="0" class="prod-input" data-idx="${idx}" oninput="app.calculateProduction()" style="width:100%;">
+                </td>
             </tr>`;
         });
     },
+
     filterProductionItems: function() {
         const term = document.getElementById('search-producao').value.toLowerCase();
         const rows = document.querySelectorAll('.prod-row');
@@ -354,57 +350,125 @@ const app = {
             if(name.includes(term)) { row.style.display = ''; } else { row.style.display = 'none'; }
         });
     },
+
+    loadFromCart: function() {
+        if (this.data.cart.length === 0) return this.showToast('Carrinho de vendas vazio!', 'error');
+        this.resetProduction();
+        let loadedCount = 0;
+        this.data.cart.forEach(item => {
+            // Limpeza do nome para comparação (remove parenteses e espaços)
+            const cleanName = item.name.split('(')[0].trim().toLowerCase();
+            
+            // Procura receita pelo nome limpo ou completo
+            const recipeIdx = this.data.recipes.findIndex(r => {
+                const recipeName = r.name.toLowerCase();
+                return recipeName === cleanName || recipeName.includes(cleanName);
+            });
+
+            if(recipeIdx > -1) {
+                const input = document.querySelector(`.prod-input[data-idx="${recipeIdx}"]`);
+                if(input) {
+                    const currentVal = parseInt(input.value) || 0;
+                    input.value = currentVal + item.qtd;
+                    loadedCount++;
+                }
+            }
+        });
+        if (loadedCount > 0) {
+            this.calculateProduction();
+            this.showToast(`${loadedCount} itens carregados!`);
+            // Rola até os detalhes para confirmar visualmente
+            const details = document.getElementById('detalhes-area');
+            if(details) details.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            this.showToast('Nenhum item compatível encontrado.', 'error');
+        }
+    },
+
     calculateProduction: function() {
         const inputs = document.querySelectorAll('.prod-input');
         let totals = new Array(this.data.matNames.length).fill(0);
         let totalMatWeight = 0;
         let totalProdWeight = 0;
         let hasInput = false;
+        
+        const detailsContainer = document.getElementById('lista-detalhada');
+        const detailsArea = document.getElementById('detalhes-area');
+        if(detailsContainer) detailsContainer.innerHTML = ''; 
 
         inputs.forEach(input => {
             const qtd = parseInt(input.value) || 0;
-            if(qtd > 0) hasInput = true;
-            const recipe = this.data.recipes[input.dataset.idx];
-            
-            // --- AJUSTE: CADA RECEITA FAZ 2 ARMAS ---
-            // Se pedir 10 armas, são 5 receitas. Se pedir 1 arma, é 1 receita.
-            const craftsNeeded = Math.ceil(qtd / 2);
+            if(qtd > 0) {
+                hasInput = true;
+                const recipe = this.data.recipes[input.dataset.idx];
+                const craftsNeeded = Math.ceil(qtd / 2); 
+                const thisProdWeight = (qtd * recipe.weight);
+                let thisMatWeight = 0;
+                let thisMatsString = [];
 
-            totalProdWeight += (qtd * recipe.weight); // Peso das armas é individual
-            
-            recipe.mats.forEach((cost, matIdx) => {
-                const materialQtd = cost * craftsNeeded; // Material é baseado na receita
-                totals[matIdx] += materialQtd;
-                totalMatWeight += materialQtd * this.data.matWeights[matIdx];
-            });
+                recipe.mats.forEach((cost, matIdx) => {
+                    const materialQtd = cost * craftsNeeded;
+                    totals[matIdx] += materialQtd;
+                    const w = materialQtd * this.data.matWeights[matIdx];
+                    thisMatWeight += w;
+                    totalMatWeight += w;
+                    
+                    if (materialQtd > 0) {
+                        thisMatsString.push(`${this.data.matNames[matIdx]}: ${materialQtd}`);
+                    }
+                });
+                
+                totalProdWeight += thisProdWeight;
+
+                if(detailsContainer) {
+                    const card = document.createElement('div');
+                    card.className = 'cart-item'; 
+                    card.style.background = 'rgba(255, 255, 255, 0.03)';
+                    card.innerHTML = `
+                        <div style="color:var(--primary); font-weight:bold;">${recipe.name} (${qtd} un.)</div>
+                        <div style="font-size:0.9rem; color:#aaa; margin-top:5px;">${thisMatsString.join(' • ')}</div>
+                        <div style="font-size:0.85rem; color:#fff; margin-top:5px; display:flex; gap:15px;">
+                            <span>⚖️ Materiais: ${thisMatWeight.toFixed(2)} kg</span>
+                            <span>📦 Final: ${thisProdWeight.toFixed(2)} kg</span>
+                        </div>
+                    `;
+                    detailsContainer.appendChild(card);
+                }
+            }
         });
 
         const resDiv = document.getElementById('resumo-materiais');
         const weightsDiv = document.getElementById('production-weights');
         const matWeightSpan = document.getElementById('weight-materials-val');
         const prodWeightSpan = document.getElementById('weight-product-val');
-        resDiv.innerHTML = '';
+        
+        if(resDiv) resDiv.innerHTML = '';
 
         if (hasInput) {
-            weightsDiv.style.display = 'flex';
-            matWeightSpan.innerText = `${totalMatWeight.toFixed(2).replace('.', ',')} kg`;
-            prodWeightSpan.innerText = `${totalProdWeight.toFixed(2).replace('.', ',')} kg`;
-            totals.forEach((total, i) => {
-                if (total > 0) {
-                    resDiv.innerHTML += `<div class="mat-tag">${this.data.matNames[i]}: ${total}</div>`;
-                }
-            });
+            if(weightsDiv) weightsDiv.style.display = 'flex';
+            if(detailsArea) detailsArea.style.display = 'block'; 
+            if(matWeightSpan) matWeightSpan.innerText = `${totalMatWeight.toFixed(2).replace('.', ',')} kg`;
+            if(prodWeightSpan) prodWeightSpan.innerText = `${totalProdWeight.toFixed(2).replace('.', ',')} kg`;
+            
+            if(resDiv) {
+                totals.forEach((total, i) => {
+                    if (total > 0) {
+                        resDiv.innerHTML += `<div class="mat-tag">${this.data.matNames[i]}: ${total}</div>`;
+                    }
+                });
+            }
         } else {
-            weightsDiv.style.display = 'none';
-            resDiv.innerHTML = '<span style="color:var(--text-muted)">Nenhum material necessário.</span>';
+            if(weightsDiv) weightsDiv.style.display = 'none';
+            if(detailsArea) detailsArea.style.display = 'none'; 
+            if(resDiv) resDiv.innerHTML = '<span style="color:var(--text-muted)">Nenhum material necessário.</span>';
         }
     },
+
     resetProduction: function() {
         document.querySelectorAll('.prod-input').forEach(i => i.value = '');
         this.calculateProduction();
     },
 
-    // --- FETCH ---
     sendToDiscord: function(url, payload, successMsg) {
         fetch(url, {
             method: "POST",
