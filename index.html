@@ -8,7 +8,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
-    <link rel="stylesheet" href="style.css?v=2.6">
+    <link rel="stylesheet" href="style.css?v=3.2">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💜</text></svg>">
 </head>
 <body>
@@ -186,42 +186,50 @@
 <div id="producao" class="section">
     <div class="card">
         <h2>Calculadora de Materiais</h2>
+        
+        <button class="btn btn-primary" onclick="app.loadFromCart()" style="margin-bottom: 20px;">
+            📥 Puxar Itens do Carrinho de Vendas
+        </button>
+
         <div class="form-group">
             <label>Buscar Item</label>
-            <input type="text" id="search-producao" onkeyup="app.filterProductionItems()" placeholder="Pesquisar itens de produção...">
+            <input type="text" id="search-producao" onkeyup="app.filterProductionItems()" placeholder="Pesquisar arma...">
         </div>
+        
         <div class="table-container">
             <table id="tabela-producao">
                 <thead>
                     <tr>
-                        <th>Item</th>
-                        <th style="width: 80px;">Qtd.</th>
-                        <th>Alumínio</th>
-                        <th>Cobre</th>
-                        <th>Materiais</th>
-                        <th>Projeto</th>
+                        <th style="text-align: left;">Item para Produção</th>
+                        <th style="width: 100px; text-align: center;">Quantidade</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    </tbody>
             </table>
         </div>
 
         <div class="materials-summary">
-            <h3>Totais Necessários:</h3>
+            <h3>Resumo Geral:</h3>
             <div id="production-weights" class="weights-row" style="display:none;">
                 <div class="weight-box weight-in">
                     📥 Peso Materiais<br>
                     <span id="weight-materials-val">0 kg</span>
                 </div>
                 <div class="weight-box weight-out">
-                    📦 Peso Produto Final<br>
+                    📦 Peso Final<br>
                     <span id="weight-product-val">0 kg</span>
                 </div>
             </div>
             <div id="resumo-materiais" class="tags-container"></div>
         </div>
+
+        <div id="detalhes-area" style="display: none; margin-top: 30px; border-top: 1px dashed var(--border); padding-top: 20px;">
+            <h3>📋 Detalhamento por Arma:</h3>
+            <div id="lista-detalhada" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
         
-        <div class="row actions-row">
+        <div class="row actions-row" style="margin-top: 20px;">
             <button class="btn btn-danger-outline" onclick="app.resetProduction()">🗑️ Zerar</button>
         </div>
     </div>
@@ -239,13 +247,14 @@
         </div>
 
         <div class="copy-card" onclick="app.copyAdText(this)" style="margin-top: 15px;">
-            🚨🚨TROJAN ON 🚨🚨<br>
+               🚨🚨TROJAN NA ATIVA 🚨🚨<br>
         </div>
     </div>
 </div>
 
 <div id="toast-container"></div>
-<script src="script.js?v=1.2" defer></script>
+
+<script src="script.js?v=1.5" defer></script>
 
 </body>
 </html>
