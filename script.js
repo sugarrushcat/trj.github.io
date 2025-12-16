@@ -3,7 +3,7 @@
 // ======================================================
 const WEBHOOK_ACOES = "https://discord.com/api/webhooks/1438189798849384560/lote5LpQxF80SDUZ3QdPOj2aHiQ7JtcJWKfTNxErKA0MjhDdQ86vruN74dnNUy0YMowD";
 const WEBHOOK_VENDAS = "https://discord.com/api/webhooks/1434731757953093662/gElahX6G0yY6h-DVQx1RQ8wOu6IJGi-k2M20fEVOgNBy-WT3ztobwuPspLB6hLaeAy6z";
-const WEBHOOK_SECUNDARIA = "https://discord.com/api/webhooks/1440862670570917960/Pvoobn7UESdk4a0UeQw3RQTFQXogZsBvgrox6s-8Sn34lZJyaPX729zOBbn2K_oOJ39R"; 
+const WEBHOOK_SECUNDARIA = "https://discord.com/api/webhooks/1450610317813092427/n9N_MYFuMGdMtT2By1FbjKQ4OEy33le1711v55vpCdyGyFhZiLedJsRH9ImHANX0sQZY"; 
 // ======================================================
 
 const app = {
@@ -11,28 +11,32 @@ const app = {
         participants: new Set(),
         cart: [],
         
+        // --- LISTA DE VENDAS ---
+        // 'cost' = Custo UNITÁRIO (Valor da receita / 2)
         products: [ 
-            { name: "Fn Five Seven (PT)", min: 53000,  max: 63600,  weight: 1.5 },
-            { name: "HK P7M10 (Fajuta)",  min: 45000,  max: 55000,  weight: 1.0 },
-            { name: "Tec-9 (Sub)",        min: 90000,  max: 110000, weight: 1.75 },
-            { name: "Uzi (Sub)",          min: 120000, max: 140000, weight: 1.25 },
-            { name: "Mtar-21 (Sub)",      min: 150000, max: 170000, weight: 5.0 },
-            { name: "Ak-74 (Fuzil)",      min: 240000, max: 260000, weight: 8.0 },
-            { name: "G36C (Fuzil)",       min: 260000, max: 280000, weight: 8.0 },
-            { name: "Ak Compact (Fuzil)", min: 250000, max: 270000, weight: 2.25 },
-            { name: "Mossberg 590",       min: 260000, max: 280000, weight: 6.0 }
+            { name: "Fn Five Seven (PT)", min: 53000,  max: 63600,  weight: 1.5,  cost: 10000 },
+            { name: "HK P7M10 (Fajuta)",  min: 45000,  max: 55000,  weight: 1.0,  cost: 5000 },
+            { name: "Tec-9 (Sub)",        min: 90000,  max: 110000, weight: 1.75, cost: 20000 },
+            { name: "Uzi (Sub)",          min: 120000, max: 140000, weight: 1.25, cost: 20000 },
+            { name: "Mtar-21 (Sub)",      min: 150000, max: 170000, weight: 5.0,  cost: 25000 },
+            { name: "Ak-74 (Fuzil)",      min: 240000, max: 260000, weight: 8.0,  cost: 35000 },
+            { name: "G36C (Fuzil)",       min: 260000, max: 280000, weight: 8.0,  cost: 30000 },
+            { name: "Ak Compact (Fuzil)", min: 250000, max: 270000, weight: 2.25, cost: 40000 }, 
+            { name: "Mossberg 590",       min: 260000, max: 280000, weight: 6.0,  cost: 35000 }
         ],
         
+        // --- RECEITAS DE PRODUÇÃO ---
+        // 'cost' = Valor da RECEITA COMPLETA (Faz 2 unidades)
         recipes: [
-            { name: "Fn Five Seven",   mats: [17, 13, 26, 25], weight: 1.5 },
-            { name: "HK P7M10",        mats: [17, 13, 26, 25], weight: 1.0 },
-            { name: "Tec-9",           mats: [34, 26, 33, 25], weight: 1.75 },
-            { name: "Uzi",             mats: [48, 39, 38, 35], weight: 1.25 },
-            { name: "Mtar-21",         mats: [51, 39, 38, 35], weight: 5.0 },
-            { name: "Ak-74",           mats: [85, 65, 40, 40], weight: 8.0 },
-            { name: "G36C",            mats: [85, 65, 40, 40], weight: 8.0 },
-            { name: "Ak Compact",      mats: [85, 70, 50, 40], weight: 2.25 },
-            { name: "Mossberg 590",    mats: [90, 75, 50, 40], weight: 6.0 },
+            { name: "Fn Five Seven",   mats: [17, 13, 26, 25], weight: 1.5,  cost: 20000 },
+            { name: "HK P7M10",        mats: [17, 13, 26, 25], weight: 1.0,  cost: 10000 },
+            { name: "Tec-9",           mats: [34, 26, 33, 25], weight: 1.75, cost: 40000 },
+            { name: "Uzi",             mats: [48, 39, 38, 35], weight: 1.25, cost: 40000 },
+            { name: "Mtar-21",         mats: [51, 39, 38, 35], weight: 5.0,  cost: 50000 },
+            { name: "Ak-74",           mats: [85, 65, 40, 40], weight: 8.0,  cost: 70000 },
+            { name: "G36C",            mats: [85, 65, 40, 40], weight: 8.0,  cost: 60000 },
+            { name: "Ak Compact",      mats: [85, 70, 50, 40], weight: 2.25, cost: 80000 },
+            { name: "Mossberg 590",    mats: [90, 75, 50, 40], weight: 6.0,  cost: 70000 },
         ],
         
         matNames: ["Alumínio", "Cobre", "Materiais", "Projeto"],
@@ -191,6 +195,7 @@ const app = {
             option.dataset.min = p.min;
             option.dataset.max = p.max;
             option.dataset.weight = p.weight;
+            option.dataset.cost = p.cost; 
             option.textContent = p.name;
             select.appendChild(option);
         });
@@ -214,11 +219,13 @@ const app = {
         const selectedOption = prodSelect.options[prodSelect.selectedIndex];
         const prodName = selectedOption.text;
         const prodWeight = parseFloat(selectedOption.dataset.weight);
+        const prodCost = parseFloat(selectedOption.dataset.cost) || 0; 
         const price = parseFloat(document.getElementById('venda-preco').value) || 0;
         const qtd = parseInt(document.getElementById('venda-qtd').value) || 1;
         if (price === 0) return this.showToast('Selecione Parceria ou Pista', 'error');
         const total = (price * qtd);
-        this.data.cart.push({ name: prodName, price, qtd, total, weight: prodWeight });
+        
+        this.data.cart.push({ name: prodName, price, qtd, total, weight: prodWeight, cost: prodCost });
         this.renderCart();
         this.showToast('Item adicionado!');
     },
@@ -226,6 +233,11 @@ const app = {
         this.data.cart = [];
         this.renderCart();
     },
+    removeFromCart: function(index) {
+        this.data.cart.splice(index, 1);
+        this.renderCart();
+    },
+
     renderCart: function() {
         const container = document.getElementById('cart-items');
         const summaryArea = document.getElementById('cart-summary-area');
@@ -240,9 +252,13 @@ const app = {
         container.innerHTML = '';
         let grandTotal = 0;
         let totalWeight = 0;
+        let totalProductionCost = 0;
+
         this.data.cart.forEach((item, index) => {
             grandTotal += item.total;
             totalWeight += (item.weight * item.qtd);
+            totalProductionCost += (item.cost * item.qtd); 
+
             container.innerHTML += `
                 <div class="cart-item">
                     <div class="cart-item-title">${item.name} — ${item.qtd}x</div>
@@ -253,21 +269,19 @@ const app = {
         });
         
         const vendedorShare = grandTotal * 0.30;
-        const faccaoShare = grandTotal * 0.70;
+        const faccaoGross = grandTotal * 0.70;
+        const faccaoNet = faccaoGross - totalProductionCost; 
         
         summaryArea.innerHTML = `
             <div class="cart-summary-box">
                 <div class="summary-total">💸 Total: R$ ${grandTotal.toLocaleString('pt-BR')}</div>
+                ${totalProductionCost > 0 ? `<div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">🔨 Custo Produção: R$ ${totalProductionCost.toLocaleString('pt-BR')}</div>` : ''}
                 <div class="summary-seller">💰 Vendedor (30%): R$ ${vendedorShare.toLocaleString('pt-BR')}</div>
-                <div class="summary-faction">🔥 Facção (70%): R$ ${faccaoShare.toLocaleString('pt-BR')}</div>
+                <div class="summary-faction">🔥 Facção (70% - Custo): R$ ${faccaoNet.toLocaleString('pt-BR')}</div>
             </div>
         `;
         weightArea.style.display = 'inline-block';
         weightArea.innerHTML = `⚖️ Peso: ${totalWeight.toFixed(2).replace('.', ',')} kg`;
-    },
-    removeFromCart: function(index) {
-        this.data.cart.splice(index, 1);
-        this.renderCart();
     },
     
     sendSaleWebhook: function() {
@@ -277,21 +291,25 @@ const app = {
         if (!vendedor || !faccao) return this.showToast('Preencha Vendedor e Facção!', 'error');
         
         let grandTotal = 0;
+        let totalProductionCost = 0;
         let itemsDesc = "";
-        let itemsSimple = ""; 
-
+        let itemsLogStr = ""; 
+        
         this.data.cart.forEach(i => {
             grandTotal += i.total;
+            totalProductionCost += (i.cost * i.qtd);
             itemsDesc += `• ${i.name} — ${i.qtd}x — R$ ${i.total.toLocaleString('pt-BR')}\n`;
-            itemsSimple += `${i.name} (${i.qtd}x), `;
+            itemsLogStr += `${i.name} (${i.qtd}x), `;
         });
 
+        itemsLogStr = itemsLogStr.slice(0, -2);
+
         const vendedorShare = grandTotal * 0.30;
-        const faccaoShare = grandTotal * 0.70;
+        const faccaoGross = grandTotal * 0.70;
+        const faccaoNet = faccaoGross - totalProductionCost;
         
         const rawDate = document.getElementById('venda-data').value;
         const timeStr = document.getElementById('venda-hora').value;
-
         let dateStr = rawDate;
         if(rawDate.includes('-')) {
             const [ano, mes, dia] = rawDate.split('-');
@@ -307,9 +325,10 @@ const app = {
                     { name: "💼 Vendedor", value: vendedor, inline: true },
                     { name: "🏛️ Facção Compradora", value: faccao, inline: true },
                     { name: "📦 Itens", value: itemsDesc, inline: false },
-                    { name: "💸 Total", value: `R$ ${grandTotal.toLocaleString('pt-BR')}`, inline: true },
+                    { name: "💸 Total Venda", value: `R$ ${grandTotal.toLocaleString('pt-BR')}`, inline: true },
+                    { name: "🔨 Custo Produção", value: `R$ ${totalProductionCost.toLocaleString('pt-BR')}`, inline: true },
                     { name: "💰 Vendedor (30%)", value: `R$ ${vendedorShare.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "🔥 Facção (70%)", value: `R$ ${faccaoShare.toLocaleString('pt-BR')}`, inline: true }
+                    { name: "🔥 Facção (Liq.)", value: `**R$ ${faccaoNet.toLocaleString('pt-BR')}**`, inline: false }
                 ],
                 footer: { text: `Data: ${dateStr} às ${timeStr}` }
             }]
@@ -319,7 +338,7 @@ const app = {
             username: "Trojan Log",
             embeds: [{
                 color: 5644438,
-                description: `**Venda:** ${itemsSimple.slice(0, -2)}\n**Data:** ${dateStr}\n**Hora:** ${timeStr}\n**Família para venda:** ${faccao}`
+                description: `**Venda:** ${itemsLogStr}\n**Data:** ${dateStr}\n**Hora:** ${timeStr}\n**Família para venda:** ${faccao}`
             }]
         };
 
@@ -327,16 +346,16 @@ const app = {
         this.sendToDiscord(WEBHOOK_SECUNDARIA, payloadLog, null);
     },
 
-    // --- FUNÇÕES DE PRODUÇÃO E IMPORTAÇÃO ---
     initProductionTable: function() {
         const tbody = document.querySelector('#tabela-producao tbody');
         if(!tbody) return;
         tbody.innerHTML = ''; 
         this.data.recipes.forEach((r, idx) => {
+            // Visual Clean na tabela (apenas nome e input)
             tbody.innerHTML += `<tr class="prod-row" data-name="${r.name.toLowerCase()}">
-                <td style="font-weight:bold; color:#fff;">${r.name}</td>
+                <td style="font-weight:bold; color:#fff; padding-left: 15px;">${r.name}</td>
                 <td style="text-align:center;">
-                    <input type="number" min="0" class="prod-input" data-idx="${idx}" oninput="app.calculateProduction()" style="width:100%;">
+                    <input type="number" min="0" class="prod-input" data-idx="${idx}" oninput="app.calculateProduction()" style="width:100%; text-align: center; border-radius: 4px; padding: 5px;">
                 </td>
             </tr>`;
         });
@@ -356,10 +375,7 @@ const app = {
         this.resetProduction();
         let loadedCount = 0;
         this.data.cart.forEach(item => {
-            // Limpeza do nome para comparação (remove parenteses e espaços)
             const cleanName = item.name.split('(')[0].trim().toLowerCase();
-            
-            // Procura receita pelo nome limpo ou completo
             const recipeIdx = this.data.recipes.findIndex(r => {
                 const recipeName = r.name.toLowerCase();
                 return recipeName === cleanName || recipeName.includes(cleanName);
@@ -377,7 +393,6 @@ const app = {
         if (loadedCount > 0) {
             this.calculateProduction();
             this.showToast(`${loadedCount} itens carregados!`);
-            // Rola até os detalhes para confirmar visualmente
             const details = document.getElementById('detalhes-area');
             if(details) details.scrollIntoView({ behavior: 'smooth' });
         } else {
@@ -390,6 +405,7 @@ const app = {
         let totals = new Array(this.data.matNames.length).fill(0);
         let totalMatWeight = 0;
         let totalProdWeight = 0;
+        let totalFinanceCost = 0;
         let hasInput = false;
         
         const detailsContainer = document.getElementById('lista-detalhada');
@@ -402,7 +418,13 @@ const app = {
                 hasInput = true;
                 const recipe = this.data.recipes[input.dataset.idx];
                 const craftsNeeded = Math.ceil(qtd / 2); 
+                
+                const thisFinanceCost = (craftsNeeded * recipe.cost);
+                totalFinanceCost += thisFinanceCost;
+
                 const thisProdWeight = (qtd * recipe.weight);
+                totalProdWeight += thisProdWeight;
+                
                 let thisMatWeight = 0;
                 let thisMatsString = [];
 
@@ -417,21 +439,43 @@ const app = {
                         thisMatsString.push(`${this.data.matNames[matIdx]}: ${materialQtd}`);
                     }
                 });
-                
-                totalProdWeight += thisProdWeight;
 
                 if(detailsContainer) {
                     const card = document.createElement('div');
                     card.className = 'cart-item'; 
-                    card.style.background = 'rgba(255, 255, 255, 0.03)';
-                    card.innerHTML = `
-                        <div style="color:var(--primary); font-weight:bold;">${recipe.name} (${qtd} un.)</div>
-                        <div style="font-size:0.9rem; color:#aaa; margin-top:5px;">${thisMatsString.join(' • ')}</div>
-                        <div style="font-size:0.85rem; color:#fff; margin-top:5px; display:flex; gap:15px;">
-                            <span>⚖️ Materiais: ${thisMatWeight.toFixed(2)} kg</span>
-                            <span>📦 Final: ${thisProdWeight.toFixed(2)} kg</span>
+                    card.style.background = 'rgba(255, 255, 255, 0.05)';
+                    card.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                    card.style.borderRadius = '8px';
+                    card.style.padding = '15px';
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'column';
+                    
+                    const cardHeader = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 10px;">
+                            <div style="color:var(--primary); font-weight:bold; font-size: 1rem;">${recipe.name}</div>
+                            <div style="background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">x${qtd}</div>
                         </div>
                     `;
+
+                    const matsGrid = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; color: #ccc; margin-bottom: 15px;">
+                            ${thisMatsString.map(m => {
+                                const parts = m.split(':');
+                                return `<div style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">
+                                    <span style="color: #888;">${parts[0]}:</span> <span style="color: #fff; font-weight:bold;">${parts[1]}</span>
+                                </div>`
+                            }).join('')}
+                        </div>
+                    `;
+
+                    const cardFooter = `
+                        <div style="margin-top: auto; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 0.85rem;">
+                            <div style="color: #aaa;">Peso: <span style="color: #fff;">${thisProdWeight}kg</span></div>
+                            <div style="color: var(--success); font-weight: bold;">R$ ${thisFinanceCost.toLocaleString('pt-BR')}</div>
+                        </div>
+                    `;
+
+                    card.innerHTML = cardHeader + matsGrid + cardFooter;
                     detailsContainer.appendChild(card);
                 }
             }
@@ -441,6 +485,7 @@ const app = {
         const weightsDiv = document.getElementById('production-weights');
         const matWeightSpan = document.getElementById('weight-materials-val');
         const prodWeightSpan = document.getElementById('weight-product-val');
+        const financeSpan = document.getElementById('cost-finance-val');
         
         if(resDiv) resDiv.innerHTML = '';
 
@@ -449,18 +494,19 @@ const app = {
             if(detailsArea) detailsArea.style.display = 'block'; 
             if(matWeightSpan) matWeightSpan.innerText = `${totalMatWeight.toFixed(2).replace('.', ',')} kg`;
             if(prodWeightSpan) prodWeightSpan.innerText = `${totalProdWeight.toFixed(2).replace('.', ',')} kg`;
+            if(financeSpan) financeSpan.innerText = `R$ ${totalFinanceCost.toLocaleString('pt-BR')}`;
             
             if(resDiv) {
                 totals.forEach((total, i) => {
                     if (total > 0) {
-                        resDiv.innerHTML += `<div class="mat-tag">${this.data.matNames[i]}: ${total}</div>`;
+                        resDiv.innerHTML += `<div class="mat-tag" style="background:var(--primary); color:white; padding:5px 10px; border-radius:15px; margin:2px; display:inline-block; font-size:0.9rem;">${this.data.matNames[i]}: ${total}</div>`;
                     }
                 });
             }
         } else {
             if(weightsDiv) weightsDiv.style.display = 'none';
             if(detailsArea) detailsArea.style.display = 'none'; 
-            if(resDiv) resDiv.innerHTML = '<span style="color:var(--text-muted)">Nenhum material necessário.</span>';
+            if(resDiv) resDiv.innerHTML = '<span style="color:var(--text-muted); font-style:italic;">Selecione itens na tabela ou puxe do carrinho para ver os materiais.</span>';
         }
     },
 
