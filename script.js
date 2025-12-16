@@ -24,8 +24,8 @@ const app = {
             { name: "Mossberg 590",       min: 260000, max: 280000, weight: 6.0 }
         ],
         
-        // --- RECEITAS DE PRODUÇÃO (LIMPAS) ---
-        // Ordem Simplificada: [Alumínio, Cobre, Materiais, Projeto]
+        // --- RECEITAS DE PRODUÇÃO ---
+        // Ordem dos Materiais: [Alumínio, Cobre, Materiais, Projeto]
         // Índices:                 0        1        2         3
         recipes: [
             { name: "Fn Five Seven",   mats: [17, 13, 26, 25], weight: 1.5 },
@@ -258,13 +258,17 @@ const app = {
                 </div>
             `;
         });
-        const vendedorShare = grandTotal * 0.60;
-        const faccaoShare = grandTotal * 0.40;
+        
+        // --- CÁLCULO DE PORCENTAGEM (ATUALIZADO) ---
+        // 70% para Facção / 30% para Vendedor
+        const vendedorShare = grandTotal * 0.30;
+        const faccaoShare = grandTotal * 0.70;
+        
         summaryArea.innerHTML = `
             <div class="cart-summary-box">
                 <div class="summary-total">💸 Total: R$ ${grandTotal.toLocaleString('pt-BR')}</div>
-                <div class="summary-seller">💰 Vendedor (60%): R$ ${vendedorShare.toLocaleString('pt-BR')}</div>
-                <div class="summary-faction">🔥 Facção (40%): R$ ${faccaoShare.toLocaleString('pt-BR')}</div>
+                <div class="summary-seller">💰 Vendedor (30%): R$ ${vendedorShare.toLocaleString('pt-BR')}</div>
+                <div class="summary-faction">🔥 Facção (70%): R$ ${faccaoShare.toLocaleString('pt-BR')}</div>
             </div>
         `;
         weightArea.style.display = 'inline-block';
@@ -291,8 +295,9 @@ const app = {
             itemsSimple += `${i.name} (${i.qtd}x), `;
         });
 
-        const vendedorShare = grandTotal * 0.60;
-        const faccaoShare = grandTotal * 0.40;
+        // --- CÁLCULO DE PORCENTAGEM WEBHOOK (ATUALIZADO) ---
+        const vendedorShare = grandTotal * 0.30;
+        const faccaoShare = grandTotal * 0.70;
         
         const rawDate = document.getElementById('venda-data').value;
         const timeStr = document.getElementById('venda-hora').value;
@@ -313,8 +318,8 @@ const app = {
                     { name: "🏛️ Facção Compradora", value: faccao, inline: true },
                     { name: "📦 Itens", value: itemsDesc, inline: false },
                     { name: "💸 Total", value: `R$ ${grandTotal.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "💰 Vendedor (60%)", value: `R$ ${vendedorShare.toLocaleString('pt-BR')}`, inline: true },
-                    { name: "🔥 Facção (40%)", value: `R$ ${faccaoShare.toLocaleString('pt-BR')}`, inline: true }
+                    { name: "💰 Vendedor (30%)", value: `R$ ${vendedorShare.toLocaleString('pt-BR')}`, inline: true },
+                    { name: "🔥 Facção (70%)", value: `R$ ${faccaoShare.toLocaleString('pt-BR')}`, inline: true }
                 ],
                 footer: { text: `Data: ${dateStr} às ${timeStr}` }
             }]
