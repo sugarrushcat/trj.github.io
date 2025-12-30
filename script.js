@@ -1,142 +1,342 @@
-const WEBHOOK_ACOES = "https://discord.com/api/webhooks/1438189798849384560/lote5LpQxF80SDUZ3QdPOj2aHiQ7JtcJWKfTNxErKA0MjhDdQ86vruN74dnNUy0YMowD";
-const WEBHOOK_VENDAS = "https://discord.com/api/webhooks/1434731757953093662/gElahX6G0yY6h-DVQx1RQ8wOu6IJGi-k2M20fEVOgNBy-WT3ztobwuPspLB6hLaeAy6z";
-const WEBHOOK_SECUNDARIA = "https://discord.com/api/webhooks/1450610317813092427/n9N_MYFuMGdMtT2By1FbjKQ4OEy33le1711v55vpCdyGyFhZiLedJsRH9ImHANX0sQZY"; 
+const CONFIG = {
+    WEBHOOKS: {
+        ACOES: "https://discord.com/api/webhooks/1438189798849384560/lote5LpQxF80SDUZ3QdPOj2aHiQ7JtcJWKfTNxErKA0MjhDdQ86vruN74dnNUy0YMowD",
+        VENDAS: "https://discord.com/api/webhooks/1434731757953093662/gElahX6G0yY6h-DVQx1RQ8wOu6IJGi-k2M20fEVOgNBy-WT3ztobwuPspLB6hLaeAy6z",
+        LOGS: "https://discord.com/api/webhooks/1450610317813092427/n9N_MYFuMGdMtT2By1FbjKQ4OEy33le1711v55vpCdyGyFhZiLedJsRH9ImHANX0sQZY"
+    },
+    MAT_NAMES: ["Alumínio", "Cobre", "Materiais", "Projeto"],
+    MAT_WEIGHTS: [0.01, 0.01, 0.01, 0.01]
+};
+
+const CATALOG = {
+    'fn_five_seven': { 
+        name: "Fn Five Seven (PT)", category: "Pistolas", 
+        price: { min: 53000, max: 63600 }, weight: 1.5, cost: 10000,
+        recipe: [17, 13, 26, 25] 
+    },
+    'hk_p7m10': { 
+        name: "HK P7M10 (Fajuta)", category: "Pistolas", 
+        price: { min: 25000, max: 30000 }, weight: 1.0, cost: 5000,
+        recipe: [17, 13, 26, 25] 
+    },
+    'tec_9': { 
+        name: "Tec-9 (Sub)", category: "Submetralhadoras", 
+        price: { min: 90000, max: 110000 }, weight: 1.75, cost: 20000,
+        recipe: [34, 26, 33, 25] 
+    },
+    'uzi': { 
+        name: "Uzi (Sub)", category: "Submetralhadoras", 
+        price: { min: 120000, max: 140000 }, weight: 1.25, cost: 20000,
+        recipe: [48, 39, 38, 35] 
+    },
+    'mtar_21': { 
+        name: "Mtar-21 (Sub)", category: "Submetralhadoras", 
+        price: { min: 150000, max: 170000 }, weight: 5.0, cost: 25000,
+        recipe: [51, 39, 38, 35] 
+    },
+    'ak_74': { 
+        name: "Ak-74 (Fuzil)", category: "Fuzis", 
+        price: { min: 240000, max: 260000 }, weight: 8.0, cost: 35000,
+        recipe: [85, 65, 40, 40] 
+    },
+    'g36c': { 
+        name: "G36C (Fuzil)", category: "Fuzis", 
+        price: { min: 260000, max: 280000 }, weight: 8.0, cost: 30000,
+        recipe: [85, 65, 40, 40] 
+    },
+    'ak_compact': { 
+        name: "Ak Compact (Fuzil)", category: "Fuzis", 
+        price: { min: 190000, max: 210000 }, weight: 2.25, cost: 40000,
+        recipe: [85, 70, 50, 40] 
+    },
+    'mossberg': { 
+        name: "Mossberg 590", category: "Escopetas", 
+        price: { min: 260000, max: 280000 }, weight: 6.0, cost: 35000,
+        recipe: [90, 75, 50, 40] 
+    }
+};
 
 const app = {
-    data: {
+    state: {
         participants: new Set(),
         cart: [],
-        currentSelection: null,
-        products: [ 
-            { name: "Fn Five Seven (PT)", category: "Pistolas", min: 53000,  max: 63600,  weight: 1.5,  cost: 10000 },
-            { name: "HK P7M10 (Fajuta)",  category: "Pistolas", min: 25000,  max: 30000,  weight: 1.0,  cost: 5000 },
-            { name: "Tec-9 (Sub)",        category: "Submetralhadoras", min: 90000,  max: 110000, weight: 1.75, cost: 20000 },
-            { name: "Uzi (Sub)",          category: "Submetralhadoras", min: 120000, max: 140000, weight: 1.25, cost: 20000 },
-            { name: "Mtar-21 (Sub)",      category: "Submetralhadoras", min: 150000, max: 170000, weight: 5.0,  cost: 25000 },
-            { name: "Ak-74 (Fuzil)",      category: "Fuzis", min: 240000, max: 260000, weight: 8.0,  cost: 35000 },
-            { name: "G36C (Fuzil)",       category: "Fuzis", min: 260000, max: 280000, weight: 8.0,  cost: 30000 },
-            { name: "Ak Compact (Fuzil)", category: "Fuzis", min: 190000, max: 210000, weight: 2.25, cost: 40000 }, 
-            { name: "Mossberg 590",       category: "Escopetas", min: 260000, max: 280000, weight: 6.0,  cost: 35000 }
-        ],
-        recipes: [
-            { name: "Fn Five Seven",   category: "Pistolas", mats: [17, 13, 26, 25], weight: 1.5,  cost: 20000 },
-            { name: "HK P7M10",        category: "Pistolas", mats: [17, 13, 26, 25], weight: 1.0,  cost: 10000 },
-            { name: "Tec-9",           category: "Submetralhadoras", mats: [34, 26, 33, 25], weight: 1.75, cost: 40000 },
-            { name: "Uzi",             category: "Submetralhadoras", mats: [48, 39, 38, 35], weight: 1.25, cost: 40000 },
-            { name: "Mtar-21",         category: "Submetralhadoras", mats: [51, 39, 38, 35], weight: 5.0,  cost: 50000 },
-            { name: "Ak-74",           category: "Fuzis", mats: [85, 65, 40, 40], weight: 8.0,  cost: 70000 },
-            { name: "G36C",            category: "Fuzis", mats: [85, 65, 40, 40], weight: 8.0,  cost: 60000 },
-            { name: "Ak Compact",      category: "Fuzis", mats: [85, 70, 50, 40], weight: 2.25, cost: 80000 },
-            { name: "Mossberg 590",    category: "Escopetas", mats: [90, 75, 50, 40], weight: 6.0,  cost: 70000 },
-        ],
-        matNames: ["Alumínio", "Cobre", "Materiais", "Projeto"],
-        matWeights: [0.01, 0.01, 0.01, 0.01] 
+        selectedItemId: null
+    },
+    dom: {},
+
+    init() {
+        this.cacheDOM();
+        this.setDefaults();
+        this.renderCatalog();
     },
 
-    init: function() {
-        this.setDateTimeInputs('acao');
-        this.setDateTimeInputs('venda');
-        this.renderSalesCatalog(); 
+    cacheDOM() {
+        const ids = [
+            'acao-tipo', 'acao-data', 'acao-hora', 'novo-participante', 'lista-participantes',
+            'venda-vendedor', 'venda-faccao', 'venda-data', 'venda-hora', 'venda-preco', 'venda-qtd',
+            'sales-catalog', 'price-controls', 'select-msg', 'cart-items', 'cart-summary-area',
+            'cart-production-area', 'mats-list-display', 'sales-production-details',
+            'total-mat-weight-display', 'total-prod-weight-display', 'toast-container'
+        ];
+        ids.forEach(id => this.dom[id] = document.getElementById(id));
     },
 
-    setDateTimeInputs: function(prefix) {
+    setDefaults() {
         const now = new Date();
-        const dateEl = document.getElementById(`${prefix}-data`);
-        const timeEl = document.getElementById(`${prefix}-hora`);
-        if(dateEl) dateEl.value = now.toISOString().split('T')[0];
-        if(timeEl) timeEl.value = now.toTimeString().slice(0,5);
+        const dateISO = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().slice(0, 5);
+        ['acao', 'venda'].forEach(prefix => {
+            const d = document.getElementById(`${prefix}-data`);
+            const t = document.getElementById(`${prefix}-hora`);
+            if (d) d.value = dateISO;
+            if (t) t.value = timeStr;
+        });
     },
 
-    formatDate: function(rawDate) {
-        if(!rawDate || !rawDate.includes('-')) return rawDate;
-        const [ano, mes, dia] = rawDate.split('-');
-        return `${dia}/${mes}/${ano}`;
+    renderCatalog() {
+        const grouped = {};
+        const categories = ["Pistolas", "Submetralhadoras", "Fuzis", "Escopetas", "Outros"];
+        
+        Object.entries(CATALOG).forEach(([id, item]) => {
+            const cat = item.category || "Outros";
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push({ ...item, id });
+        });
+
+        let htmlBuffer = '';
+        categories.forEach(cat => {
+            if (grouped[cat]) {
+                htmlBuffer += `
+                <div class="catalog-category-title collapsed" onclick="app.toggleCategory(this)">
+                    ${cat}
+                </div>
+                <div class="grid-list-small hidden">`;
+                
+                grouped[cat].forEach(item => {
+                    htmlBuffer += `
+                    <div class="catalog-item" data-id="${item.id}" onclick="app.selectItem('${item.id}')">
+                        <div class="cat-name">${item.name}</div>
+                        <div class="cat-prices">
+                            <span class="price-tag min">R$ ${item.price.min/1000}k</span>
+                            <span class="price-separator">|</span>
+                            <span class="price-tag max">R$ ${item.price.max/1000}k</span>
+                        </div>
+                    </div>`;
+                });
+                htmlBuffer += `</div>`;
+            }
+        });
+        this.dom['sales-catalog'].innerHTML = htmlBuffer;
     },
 
-    switchTab: function(tabId, event) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(event) event.currentTarget.classList.add('active');
-    },
-
-    showToast: function(message, type = 'success') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> ${message}`;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    },
-
-    copyAdText: function(element) {
-        const textToCopy = element.innerText;
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(textToCopy).then(() => this.showToast("Anúncio copiado!")).catch(() => this.fallbackCopyText(textToCopy));
-        } else {
-            this.fallbackCopyText(textToCopy);
+    toggleCategory(headerElement) {
+        headerElement.classList.toggle('collapsed');
+        const contentDiv = headerElement.nextElementSibling;
+        if (contentDiv) {
+            contentDiv.classList.toggle('hidden');
         }
     },
 
-    fallbackCopyText: function(text) {
-        const textArea = document.createElement("textarea");
-        Object.assign(textArea.style, { position: 'fixed', top: '0', left: '0', opacity: '0' });
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy') ? this.showToast("Anúncio copiado!") : this.showToast("Erro ao copiar", "error");
-        } catch (err) {
-            this.showToast("Erro grave ao copiar", "error");
-        }
-        document.body.removeChild(textArea);
+    selectItem(id) {
+        this.state.selectedItemId = id;
+        document.querySelectorAll('.catalog-item').forEach(el => el.classList.remove('selected'));
+        const selectedEl = document.querySelector(`.catalog-item[data-id="${id}"]`);
+        if(selectedEl) selectedEl.classList.add('selected');
+
+        this.dom['price-controls'].classList.remove('hidden-controls');
+        this.dom['select-msg'].style.display = 'none';
+        document.querySelectorAll('input[name="preco-tipo"]').forEach(el => el.checked = false);
+        this.dom['venda-preco'].value = '';
+        this.dom['venda-qtd'].value = 1;
     },
 
-    handleEnterParticipant: function(e) { if (e.key === 'Enter') this.addParticipant(); },
-    
-    addParticipant: function() {
-        const input = document.getElementById('novo-participante');
+    setPrice(type) {
+        if (!this.state.selectedItemId) return;
+        this.dom['venda-preco'].value = CATALOG[this.state.selectedItemId].price[type];
+    },
+
+    addToCart() {
+        const id = this.state.selectedItemId;
+        if (!id) return this.showToast('Selecione uma arma', 'error');
+
+        const price = parseFloat(this.dom['venda-preco'].value) || 0;
+        const qtd = parseInt(this.dom['venda-qtd'].value) || 1;
+
+        if (price === 0) return this.showToast('Selecione Parceria ou Pista', 'error');
+        const item = CATALOG[id];
+
+        this.state.cart.push({
+            id: id,
+            name: item.name,
+            price: price,
+            qtd: qtd,
+            total: price * qtd,
+            weight: item.weight,
+            cost: item.cost,
+            recipe: item.recipe
+        });
+
+        this.renderCart();
+        this.showToast('Item adicionado!');
+        this.dom['cart-production-area'].classList.add('hidden');
+    },
+
+    renderCart() {
+        const container = this.dom['cart-items'];
+        if (this.state.cart.length === 0) {
+            container.innerHTML = '<p class="empty-msg">Carrinho vazio</p>';
+            this.dom['cart-summary-area'].innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        let grandTotal = 0;
+        let totalProdCost = 0;
+
+        this.state.cart.forEach((item, idx) => {
+            grandTotal += item.total;
+            totalProdCost += (item.cost * item.qtd);
+            html += `
+                <div class="cart-item">
+                    <div class="cart-item-title">${item.name} <span class="badge-count">x${item.qtd}</span></div>
+                    <div class="cart-item-price">R$ ${item.total.toLocaleString('pt-BR')}</div>
+                    <div class="btn-remove-item" onclick="app.removeFromCart(${idx})">&times;</div>
+                </div>`;
+        });
+
+        container.innerHTML = html;
+        const faccaoNet = (grandTotal * 0.70) - totalProdCost;
+
+        this.dom['cart-summary-area'].innerHTML = `
+            <div class="cart-summary-box">
+                <div class="summary-total">💸 Total: R$ ${grandTotal.toLocaleString('pt-BR')}</div>
+                ${totalProdCost > 0 ? `<div class="text-sub">🔨 Custo Prod.: R$ ${totalProdCost.toLocaleString('pt-BR')}</div>` : ''}
+                <div class="summary-seller">💰 Vendedor (30%): R$ ${(grandTotal * 0.30).toLocaleString('pt-BR')}</div>
+                <div class="summary-faction">🔥 Facção: R$ ${faccaoNet.toLocaleString('pt-BR')}</div>
+            </div>`;
+    },
+
+    removeFromCart(index) {
+        this.state.cart.splice(index, 1);
+        this.renderCart();
+        this.dom['cart-production-area'].classList.add('hidden');
+    },
+
+    clearCart() {
+        this.state.cart = [];
+        this.renderCart();
+        this.dom['cart-production-area'].classList.add('hidden');
+    },
+
+    closeProduction() {
+        this.dom['cart-production-area'].classList.add('hidden');
+    },
+
+    calculateCartProduction() {
+        if (this.state.cart.length === 0) return this.showToast('Carrinho vazio!', 'error');
+
+        const totalMats = [0, 0, 0, 0];
+        let totalMatWeight = 0;
+        let totalProdWeight = 0;
+        let detailsHTML = "";
+
+        this.state.cart.forEach(item => {
+            totalProdWeight += item.weight * item.qtd;
+            if (item.recipe) {
+                const crafts = Math.ceil(item.qtd / 2);
+                let itemMatsHTML = "";
+                
+                item.recipe.forEach((qtd, i) => {
+                    const totalM = qtd * crafts;
+                    totalMats[i] += totalM;
+                    totalMatWeight += totalM * CONFIG.MAT_WEIGHTS[i];
+                    if (totalM > 0) {
+                        itemMatsHTML += `<div class="mat-item-tiny"><span>${CONFIG.MAT_NAMES[i]}:</span> <b>${totalM}</b></div>`;
+                    }
+                });
+
+                detailsHTML += `
+                <div class="detail-card-small">
+                    <div class="detail-header-small"><span class="detail-name">${item.name}</span><span class="badge-count-small">x${item.qtd}</span></div>
+                    <div class="mats-grid-small">${itemMatsHTML}</div>
+                </div>`;
+            }
+        });
+
+        this.dom['mats-list-display'].innerHTML = totalMats.map((t, i) => 
+            t > 0 ? `<div class="mat-tag-pill"><span>${CONFIG.MAT_NAMES[i]}:</span> <b>${t}</b></div>` : ''
+        ).join('');
+
+        this.dom['sales-production-details'].innerHTML = detailsHTML;
+        this.dom['total-mat-weight-display'].innerText = totalMatWeight.toFixed(2).replace('.', ',') + ' kg';
+        this.dom['total-prod-weight-display'].innerText = totalProdWeight.toFixed(2).replace('.', ',') + ' kg';
+
+        const area = this.dom['cart-production-area'];
+        area.classList.remove('hidden');
+        area.scrollIntoView({ behavior: 'smooth' });
+    },
+
+    addParticipant() {
+        const input = this.dom['novo-participante'];
         const name = input.value.trim();
         if (!name) return this.showToast('Digite um nome', 'error');
-        if (this.data.participants.has(name)) return this.showToast('Já adicionado', 'error');
-        this.data.participants.add(name);
+        if (this.state.participants.has(name)) return this.showToast('Já adicionado', 'error');
+        
+        this.state.participants.add(name);
         this.renderParticipants();
         input.value = "";
         input.focus();
     },
 
-    renderParticipants: function() {
-        const container = document.getElementById('lista-participantes');
-        container.innerHTML = '';
-        this.data.participants.forEach(p => {
+    removeParticipant(name) {
+        this.state.participants.delete(name);
+        this.renderParticipants();
+    },
+
+    renderParticipants() {
+        const fragment = document.createDocumentFragment();
+        this.state.participants.forEach(p => {
             const div = document.createElement('div');
             div.className = 'chip';
             div.innerHTML = `${p} <span onclick="app.removeParticipant('${p}')">&times;</span>`;
-            container.appendChild(div);
+            fragment.appendChild(div);
         });
+        const container = this.dom['lista-participantes'];
+        container.innerHTML = '';
+        container.appendChild(fragment);
     },
 
-    removeParticipant: function(name) {
-        this.data.participants.delete(name);
-        this.renderParticipants();
+    async sendWebhook(url, payload, successMessage, callback) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                if(successMessage) this.showToast(successMessage);
+                if(callback) callback();
+            } else {
+                throw new Error("Discord API Error");
+            }
+        } catch (err) {
+            console.error(err);
+            this.showToast("Erro ao enviar para o Discord", "error");
+        }
     },
-    
-    sendActionWebhook: function() {
-        const tipo = document.getElementById('acao-tipo').value;
-        const resultado = document.querySelector('input[name="resultado"]:checked')?.value;
-        const hora = document.getElementById('acao-hora').value;
-        const dataFormatada = this.formatDate(document.getElementById('acao-data').value);
-        const parts = Array.from(this.data.participants).join('\n> • ');
 
-        if(!tipo || !resultado) return this.showToast('Preencha o local e o resultado!', 'error');
-
-        const color = resultado === 'Vitória' ? 3066993 : 15158332; 
+    sendActionWebhook() {
+        const tipo = this.dom['acao-tipo'].value;
+        const resultadoEl = document.querySelector('input[name="resultado"]:checked');
+        if(!tipo || !resultadoEl) return this.showToast('Preencha o local e o resultado!', 'error');
         
-        this.sendToDiscord(WEBHOOK_ACOES, {
+        const resultado = resultadoEl.value;
+        const hora = this.dom['acao-hora'].value;
+        const dataF = this.formatDate(this.dom['acao-data'].value);
+        const parts = Array.from(this.state.participants).join('\n> • ');
+        const color = resultado === 'Vitória' ? 3066993 : 15158332;
+
+        const embedMain = {
             username: "TrojanHelper",
             embeds: [{
                 title: `⚔️ Registro de Ação: ${tipo}`,
@@ -144,222 +344,40 @@ const app = {
                 fields: [
                     { name: "Resultado", value: `**${resultado.toUpperCase()}**`, inline: true },
                     { name: "Motivo", value: "Ação Blipada", inline: true },
-                    { name: "Data/Hora", value: `${dataFormatada} às ${hora}`, inline: false },
+                    { name: "Data/Hora", value: `${dataF} às ${hora}`, inline: false },
                     { name: "Participantes", value: parts ? `> • ${parts}` : "> Ninguém registrado" }
                 ],
                 footer: { text: "Sistema de Gestão TRJ" }
             }]
-        }, "Ação registrada!");
+        };
 
-        this.sendToDiscord(WEBHOOK_SECUNDARIA, {
+        const embedLog = {
             username: "Trojan Log",
             embeds: [{
                 color: color,
-                description: `**Ação:** ${tipo}\n**Data:** ${dataFormatada}\n**Hora:** ${hora}\n**Motivo:** Ação Blipada\n**Resultado:** ${resultado}`
+                description: `**Ação:** ${tipo}\n**Data:** ${dataF}\n**Hora:** ${hora}\n**Motivo:** Ação Blipada\n**Resultado:** ${resultado}`
             }]
+        };
+
+        this.sendWebhook(CONFIG.WEBHOOKS.ACOES, embedMain, "Ação registrada!", () => {
+            this.dom['novo-participante'].value = '';
+            this.state.participants.clear();
+            this.renderParticipants();
         });
+        this.sendWebhook(CONFIG.WEBHOOKS.LOGS, embedLog);
     },
 
-    renderSalesCatalog: function() {
-        const container = document.getElementById('sales-catalog');
-        if(!container) return;
-        
-        const grouped = this.data.products.reduce((acc, curr) => {
-            const cat = curr.category || "Outros";
-            if(!acc[cat]) acc[cat] = [];
-            acc[cat].push(curr);
-            return acc;
-        }, {});
-
-        const order = ["Pistolas", "Submetralhadoras", "Fuzis", "Escopetas", "Outros"];
-        
-        let html = '';
-        order.forEach(cat => {
-            if(grouped[cat]) {
-                html += `<div class="catalog-category-title">${cat}</div>`;
-                html += `<div class="grid-list-small">`;
-                grouped[cat].forEach(p => {
-                    html += `
-                    <div class="catalog-item" onclick="app.selectFromCatalog('${p.name}')">
-                        <div class="cat-name">${p.name}</div>
-                        <div class="cat-prices">
-                            <span class="price-tag min">R$ ${p.min/1000}k</span>
-                            <span class="price-separator">|</span>
-                            <span class="price-tag max">R$ ${p.max/1000}k</span>
-                        </div>
-                    </div>`;
-                });
-                html += `</div>`;
-            }
-        });
-        container.innerHTML = html;
-    },
-
-    selectFromCatalog: function(prodName) {
-        this.data.currentSelection = this.data.products.find(p => p.name === prodName);
-        if(!this.data.currentSelection) return;
-
-        document.querySelectorAll('.catalog-item').forEach(el => el.classList.remove('selected'));
-        const allNames = Array.from(document.querySelectorAll('.cat-name'));
-        const clicked = allNames.find(el => el.textContent === prodName);
-        if(clicked) clicked.parentElement.classList.add('selected');
-
-        document.getElementById('price-controls').classList.remove('hidden-controls');
-        document.getElementById('select-msg').style.display = 'none';
-
-        document.querySelectorAll('input[name="preco-tipo"]').forEach(el => el.checked = false);
-        document.getElementById('venda-preco').value = '';
-    },
-
-    setPrice: function(type) {
-        if (!this.data.currentSelection) return;
-        document.getElementById('venda-preco').value = type === 'min' 
-            ? this.data.currentSelection.min 
-            : this.data.currentSelection.max;
-    },
-
-    addToCart: function() {
-        if(!this.data.currentSelection) return this.showToast('Selecione uma arma', 'error');
-        
-        const price = parseFloat(document.getElementById('venda-preco').value) || 0;
-        const qtd = parseInt(document.getElementById('venda-qtd').value) || 1;
-        
-        if (price === 0) return this.showToast('Selecione Parceria ou Pista', 'error');
-        
-        this.data.cart.push({
-            name: this.data.currentSelection.name,
-            price: price,
-            qtd: qtd,
-            total: price * qtd,
-            weight: this.data.currentSelection.weight,
-            cost: this.data.currentSelection.cost || 0
-        });
-        
-        this.renderCart();
-        this.showToast('Item adicionado!');
-        document.getElementById('cart-production-area').classList.add('hidden');
-    },
-
-    clearCart: function() {
-        this.data.cart = [];
-        this.renderCart();
-        document.getElementById('cart-production-area').classList.add('hidden');
-    },
-
-    removeFromCart: function(index) {
-        this.data.cart.splice(index, 1);
-        this.renderCart();
-        document.getElementById('cart-production-area').classList.add('hidden');
-    },
-
-    renderCart: function() {
-        const container = document.getElementById('cart-items');
-        const summaryArea = document.getElementById('cart-summary-area');
-        
-        if (this.data.cart.length === 0) {
-            container.innerHTML = '<p class="empty-msg">Carrinho vazio</p>';
-            summaryArea.innerHTML = ''; 
-            return;
-        }
-        
-        container.innerHTML = '';
-        let grandTotal = 0, totalProdCost = 0;
-
-        this.data.cart.forEach((item, index) => {
-            grandTotal += item.total;
-            totalProdCost += (item.cost * item.qtd); 
-
-            container.innerHTML += `
-                <div class="cart-item">
-                    <div class="cart-item-title">${item.name} <span class="badge-count">x${item.qtd}</span></div>
-                    <div class="cart-item-price">R$ ${item.total.toLocaleString('pt-BR')}</div>
-                    <div class="btn-remove-item" onclick="app.removeFromCart(${index})">&times;</div>
-                </div>
-            `;
-        });
-        
-        const faccaoNet = (grandTotal * 0.70) - totalProdCost; 
-        
-        summaryArea.innerHTML = `
-            <div class="cart-summary-box">
-                <div class="summary-total">💸 Total: R$ ${grandTotal.toLocaleString('pt-BR')}</div>
-                ${totalProdCost > 0 ? `<div class="text-sub">🔨 Custo Prod.: R$ ${totalProdCost.toLocaleString('pt-BR')}</div>` : ''}
-                <div class="summary-seller">💰 Vendedor (30%): R$ ${(grandTotal * 0.30).toLocaleString('pt-BR')}</div>
-                <div class="summary-faction">🔥 Facção: R$ ${faccaoNet.toLocaleString('pt-BR')}</div>
-            </div>
-        `;
-    },
-
-    calculateCartProduction: function() {
-        if (this.data.cart.length === 0) return this.showToast('O carrinho está vazio!', 'error');
-
-        const area = document.getElementById('cart-production-area');
-        const listDiv = document.getElementById('mats-list-display');
-        const detailsDiv = document.getElementById('sales-production-details');
-        const matWeightSpan = document.getElementById('total-mat-weight-display');
-        const prodWeightSpan = document.getElementById('total-prod-weight-display');
-
-        let totalMats = new Array(this.data.matNames.length).fill(0);
-        let totalMatWeight = 0;
-        let totalProdWeight = 0;
-        let detailsHTML = "";
-
-        this.data.cart.forEach(item => {
-            const cleanName = item.name.split('(')[0].trim().toLowerCase();
-            const recipe = this.data.recipes.find(r => r.name.toLowerCase().includes(cleanName));
-            
-            // Peso das Armas
-            totalProdWeight += item.weight * item.qtd;
-
-            if (recipe) {
-                const crafts = Math.ceil(item.qtd / 2); 
-                let itemMatsHTML = "";
-                
-                recipe.mats.forEach((mQtd, i) => {
-                    const totalM = mQtd * crafts;
-                    totalMats[i] += totalM;
-                    totalMatWeight += totalM * this.data.matWeights[i]; // Peso dos Materiais
-                    if (totalM > 0) {
-                        itemMatsHTML += `<div class="mat-item-tiny"><span>${this.data.matNames[i]}:</span> <b>${totalM}</b></div>`;
-                    }
-                });
-
-                detailsHTML += `
-                <div class="detail-card-small">
-                    <div class="detail-header-small">
-                        <span class="detail-name">${item.name}</span>
-                        <span class="badge-count-small">x${item.qtd}</span>
-                    </div>
-                    <div class="mats-grid-small">
-                        ${itemMatsHTML}
-                    </div>
-                </div>`;
-            }
-        });
-
-        listDiv.innerHTML = totalMats.map((t, i) => {
-            return t > 0 ? `<div class="mat-tag-pill"><span>${this.data.matNames[i]}:</span> <b>${t}</b></div>` : '';
-        }).join('');
-
-        detailsDiv.innerHTML = detailsHTML;
-        
-        matWeightSpan.innerText = totalMatWeight.toFixed(2).replace('.', ',') + ' kg';
-        prodWeightSpan.innerText = totalProdWeight.toFixed(2).replace('.', ',') + ' kg';
-
-        area.classList.remove('hidden');
-        area.scrollIntoView({ behavior: 'smooth' });
-    },
-    
-    sendSaleWebhook: function() {
-        if (this.data.cart.length === 0) return this.showToast('Carrinho vazio!', 'error');
-        const vendedor = document.getElementById('venda-vendedor').value.trim();
-        const faccao = document.getElementById('venda-faccao').value.trim();
+    sendSaleWebhook() {
+        if (this.state.cart.length === 0) return this.showToast('Carrinho vazio!', 'error');
+        const vendedor = this.dom['venda-vendedor'].value.trim();
+        const faccao = this.dom['venda-faccao'].value.trim();
         if (!vendedor || !faccao) return this.showToast('Preencha Vendedor e Facção!', 'error');
-        
+
         let grandTotal = 0, totalProdCost = 0;
-        let itemsDesc = "", itemsLogStr = [];
-        
-        this.data.cart.forEach(i => {
+        let itemsDesc = "";
+        const itemsLogStr = [];
+
+        this.state.cart.forEach(i => {
             grandTotal += i.total;
             totalProdCost += (i.cost * i.qtd);
             itemsDesc += `• ${i.name} — ${i.qtd}x — R$ ${i.total.toLocaleString('pt-BR')}\n`;
@@ -367,10 +385,10 @@ const app = {
         });
 
         const faccaoNet = (grandTotal * 0.70) - totalProdCost;
-        const timeStr = document.getElementById('venda-hora').value;
-        const dateStr = this.formatDate(document.getElementById('venda-data').value);
+        const timeStr = this.dom['venda-hora'].value;
+        const dateStr = this.formatDate(this.dom['venda-data'].value);
 
-        this.sendToDiscord(WEBHOOK_VENDAS, {
+        const embedMain = {
             username: "TrojanHelper",
             embeds: [{
                 title: "📄 Venda Registrada",
@@ -386,36 +404,76 @@ const app = {
                 ],
                 footer: { text: `Data: ${dateStr} às ${timeStr}` }
             }]
-        }, "Venda enviada!");
+        };
 
-        this.sendToDiscord(WEBHOOK_SECUNDARIA, {
+        const embedLog = {
             username: "Trojan Log",
             embeds: [{
                 color: 5644438,
                 description: `**Venda:** ${itemsLogStr.join(', ')}\n**Data:** ${dateStr}\n**Hora:** ${timeStr}\n**Família:** ${faccao}`
             }]
+        };
+
+        this.sendWebhook(CONFIG.WEBHOOKS.VENDAS, embedMain, "Venda enviada!", () => {
+            this.clearCart();
+            this.dom['venda-vendedor'].value = '';
+            this.dom['venda-faccao'].value = '';
+        });
+        this.sendWebhook(CONFIG.WEBHOOKS.LOGS, embedLog);
+    },
+
+    switchTab(tabId, event) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if (event) event.currentTarget.classList.add('active');
+    },
+
+    formatDate(rawDate) {
+        if (!rawDate || !rawDate.includes('-')) return rawDate;
+        const [ano, mes, dia] = rawDate.split('-');
+        return `${dia}/${mes}/${ano}`;
+    },
+
+    showToast(message, type = 'success') {
+        const container = this.dom['toast-container'];
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> ${message}`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         });
     },
 
-    sendToDiscord: function(url, payload, successMsg) {
-        fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        }).then(response => {
-            if (response.ok && successMsg) {
-                this.showToast(successMsg);
-                if (url === WEBHOOK_ACOES) {
-                    document.getElementById('novo-participante').value = '';
-                    this.data.participants.clear();
-                    this.renderParticipants();
-                } else if (url === WEBHOOK_VENDAS) {
-                    this.clearCart();
-                    document.getElementById('venda-vendedor').value = '';
-                    document.getElementById('venda-faccao').value = '';
-                }
-            }
-        }).catch(err => console.error(err));
+    handleEnterParticipant(e) { 
+        if (e.key === 'Enter') this.addParticipant(); 
+    },
+
+    copyAdText(element) {
+        const text = element.innerText;
+        navigator.clipboard.writeText(text)
+            .then(() => this.showToast("Anúncio copiado!"))
+            .catch(() => this.fallbackCopyText(text));
+    },
+
+    fallbackCopyText(text) {
+        const textArea = document.createElement("textarea");
+        textArea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            this.showToast("Anúncio copiado!");
+        } catch (err) {
+            this.showToast("Erro ao copiar", "error");
+        }
+        document.body.removeChild(textArea);
     }
 };
 
