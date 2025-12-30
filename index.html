@@ -63,8 +63,8 @@
         <div class="form-group">
             <label>Participantes</label>
             <div class="input-group">
-                <input type="text" id="novo-participante" placeholder="Nome/ID e Enter..." onkeypress="app.handleEnterParticipant(event)">
-                <button class="btn btn-small" onclick="app.addParticipant()">Add</button>
+                <input type="text" id="novo-participante" placeholder="Nome/ID e Enter..." autocomplete="off" onkeypress="app.handleEnterParticipant(event)">
+                <button class="btn btn-small" type="button" onclick="app.addParticipant()">Add</button>
             </div>
             <div id="lista-participantes" class="participants-list"></div>
         </div>
@@ -78,8 +78,8 @@
             <div class="card">
                 <h2>Registrar Venda</h2>
                 <div class="row">
-                    <div class="col form-group"><label>Vendedor</label><input type="text" id="venda-vendedor" placeholder="Nome..."></div>
-                    <div class="col form-group"><label>Facção</label><input type="text" id="venda-faccao" placeholder="Ex: Turkey..."></div>
+                    <div class="col form-group"><label>Vendedor</label><input type="text" id="venda-vendedor" placeholder="Nome..." autocomplete="off"></div>
+                    <div class="col form-group"><label>Facção</label><input type="text" id="venda-faccao" placeholder="Ex: Turkey..." autocomplete="off"></div>
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Data</label><input type="date" id="venda-data"></div>
@@ -103,7 +103,7 @@
                     </div>
                     <div class="row">
                         <div class="col form-group"><label>Valor (R$)</label><input type="number" id="venda-preco" placeholder="0" readonly></div>
-                        <div class="col form-group"><label>Qtd.</label><input type="number" id="venda-qtd" value="1"></div>
+                        <div class="col form-group"><label>Qtd.</label><input type="number" id="venda-qtd" value="1" min="1"></div>
                     </div>
                     <button class="btn btn-outline" onclick="app.addToCart()">+ ADICIONAR AO CARRINHO</button>
                 </div>
@@ -134,7 +134,11 @@
                     </button>
 
                     <div id="cart-production-area" class="production-summary-box hidden mt-20">
-                        <h3 class="summary-title-styled text-center">Resumo Total</h3>
+                        <div class="prod-box-header">
+                            <h3 class="summary-title-styled">Resumo Total</h3>
+                            <button class="btn-close-box" onclick="app.closeProduction()">✖</button>
+                        </div>
+                        
                         <div id="mats-list-display" class="tags-container mb-15"></div>
                         
                         <h4 class="text-muted text-center mb-10 text-sub uppercase">Detalhamento por Item:</h4>
