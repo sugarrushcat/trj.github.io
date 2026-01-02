@@ -292,7 +292,9 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
     }
 }
 
-.cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 10px; }
+.cart-controls-header { display: flex; gap: 8px; }
+
 .cart-item { 
     background-color: rgba(0,0,0,0.25); 
     padding: 15px; 
@@ -306,7 +308,7 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
     transition: 0.2s;
 }
 .cart-item:hover { background-color: rgba(0,0,0,0.4); }
-.cart-item-title { color: #e5e7eb; font-size: 0.95rem; }
+.cart-item-title { color: #e5e7eb; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
 .cart-item-price { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
 .btn-remove-item { position: absolute; top: 15px; right: 15px; color: var(--text-muted); cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
 .btn-remove-item:hover { color: var(--danger); transform: scale(1.1); }
@@ -496,7 +498,6 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
     animation: fadeIn 0.4s;
 }
 
-
 .prod-box-header {
     display: flex;
     justify-content: space-between;
@@ -614,40 +615,98 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
 }
 .weight-pill span { font-size: 1rem; font-weight: 800; }
 
-
-
-.cart-actions-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 5px;
+.mat-tag-pill.project-tag {
+    border-color: #ec4899; 
+    color: #fbcfe8;
 }
 
-.btn-toggle-price {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--text-muted);
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 0.75rem;
+
+.qty-selector {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    width: fit-content; 
+}
+
+.btn-qty {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: var(--text-main);
+    width: 40px;
+    height: 42px; 
+    font-size: 1.2rem;
     cursor: pointer;
     transition: 0.2s;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
 }
-
-.btn-toggle-price:hover {
-    background: rgba(139, 92, 246, 0.2);
-    border-color: var(--primary);
+.btn-qty:hover {
+    background: var(--primary);
     color: white;
 }
 
-.btn-price-min { color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
-.btn-price-max { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
+.qty-selector input {
+    border: none;
+    text-align: center;
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    background: transparent;
+    width: 60px; 
+    height: 42px;
+    font-weight: bold;
+    color: white;
+    -moz-appearance: textfield;
+}
+.qty-selector input:focus {
+    background: rgba(255,255,255,0.05);
+    outline: none;
+}
+
+.qty-selector input::-webkit-outer-spin-button,
+.qty-selector input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 
-.mat-tag-pill.project-tag {
-    border-color: #ec4899; 
-    color: #fbcfe8;
+.cart-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.qty-selector-sm {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.4);
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-qty-sm {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-qty-sm:hover { background: var(--primary); color: white; }
+
+.qty-display-sm {
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-width: 24px;
+    text-align: center;
+    color: white;
 }
