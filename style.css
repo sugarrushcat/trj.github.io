@@ -498,6 +498,7 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
     animation: fadeIn 0.4s;
 }
 
+/* Novo Header da Caixa de Produção */
 .prod-box-header {
     display: flex;
     justify-content: space-between;
@@ -709,4 +710,20 @@ input[type="radio"]:checked + .label-loss { border-color: var(--danger); color: 
     min-width: 24px;
     text-align: center;
     color: white;
+}
+
+
+.site-mascot {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 100px;
+    height: auto;
+    z-index: 90;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    transition: transform 0.3s ease;
+    cursor: grab;
+}
+.site-mascot:hover {
+    transform: translateY(-5px) scale(1.1);
 }
