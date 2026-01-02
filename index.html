@@ -89,21 +89,35 @@
                 <hr class="separator">
 
                 <div class="form-group">
+                    <label>TABELA DE PREÇO (GLOBAL):</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="preco-tipo" value="min" onchange="app.updateGlobalPriceType('min')">
+                            <div class="radio-label">Parceria (Mínimo)</div>
+                        </label>
+                        <label>
+                            <input type="radio" name="preco-tipo" value="max" onchange="app.updateGlobalPriceType('max')" checked>
+                            <div class="radio-label">Pista (Máximo)</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>SELECIONE O ARMAMENTO:</label>
                     <div id="sales-catalog" class="catalog-container"></div>
                 </div>
 
                 <div id="price-controls" class="hidden-controls">
-                    <div class="form-group">
-                        <label>Tabela de Preço</label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="preco-tipo" value="min" onchange="app.setPrice('min')"><div class="radio-label">Parceria</div></label>
-                            <label><input type="radio" name="preco-tipo" value="max" onchange="app.setPrice('max')"><div class="radio-label">Pista</div></label>
-                        </div>
-                    </div>
                     <div class="row">
-                        <div class="col form-group"><label>Valor (R$)</label><input type="number" id="venda-preco" placeholder="0" readonly></div>
-                        <div class="col form-group"><label>Qtd.</label><input type="number" id="venda-qtd" value="1" min="1"></div>
+                        <div class="col form-group"><label>Valor Unit. (R$)</label><input type="number" id="venda-preco" placeholder="0" readonly></div>
+                        <div class="col form-group">
+                            <label>Qtd.</label>
+                            <div class="qty-selector">
+                                <button class="btn-qty" onclick="app.adjustSalesQtd(-1)">-</button>
+                                <input type="number" id="venda-qtd" value="1" min="1" onchange="app.validateInput(this)">
+                                <button class="btn-qty" onclick="app.adjustSalesQtd(1)">+</button>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn btn-outline" onclick="app.addToCart()">+ ADICIONAR AO CARRINHO</button>
                 </div>
