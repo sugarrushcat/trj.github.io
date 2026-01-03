@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel TRJ - Gestão</title>
-    <link rel="stylesheet" href="style.css?v=12.1">
+    <link rel="stylesheet" href="style.css?v=12.3">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💜</text></svg>">
 </head>
 <body>
 
 <header>
-    <h1>Painel TRJ</h1>
-    <div class="system-status"><span class="status-dot"></span> Sistema Online</div>
+    <div class="header-top">
+        <h1>Painel TRJ</h1>
+        
+        <div class="header-controls">
+            <div class="system-status"><span class="status-dot"></span> Sistema Online</div>
+            <button class="btn-tutorial-start" onclick="app.startTutorial()">❓ Como usar?</button>
+        </div>
+    </div>
+
     <nav class="nav-tabs">
         <button class="nav-btn" onclick="app.switchTab('acoes', event)">⚔️ Ações</button>
         <button class="nav-btn active" onclick="app.switchTab('vendas', event)">💰 Vendas & Produção</button>
@@ -62,7 +69,7 @@
         </div>
         <div class="form-group">
             <label>Participantes</label>
-            <div class="input-group">
+            <div class="input-group" id="group-participantes">
                 <input type="text" id="novo-participante" placeholder="Nome/ID e Enter..." autocomplete="off" onkeypress="app.handleEnterParticipant(event)">
                 <button class="btn btn-small" type="button" onclick="app.addParticipant()">Add</button>
             </div>
@@ -77,7 +84,7 @@
         <div class="col">
             <div class="card">
                 <h2>Registrar Venda</h2>
-                <div class="row">
+                <div class="row" id="area-vendedor-info">
                     <div class="col form-group"><label>Vendedor</label><input type="text" id="venda-vendedor" placeholder="Nome..." autocomplete="off"></div>
                     <div class="col form-group"><label>Facção</label><input type="text" id="venda-faccao" placeholder="Ex: Turkey..." autocomplete="off"></div>
                 </div>
@@ -88,7 +95,7 @@
 
                 <hr class="separator">
 
-                <div class="form-group">
+                <div class="form-group" id="area-tabela-preco">
                     <label>TABELA DE PREÇO (GLOBAL):</label>
                     <div class="radio-group">
                         <label>
@@ -119,14 +126,14 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-outline" onclick="app.addToCart()">+ ADICIONAR AO CARRINHO</button>
+                    <button class="btn btn-outline" id="btn-add-cart" onclick="app.addToCart()">+ ADICIONAR AO CARRINHO</button>
                 </div>
                 <div id="select-msg" class="text-center text-muted italic mt-15">Selecione uma arma acima...</div>
             </div>
         </div>
 
         <div class="col">
-            <div class="card card-cart">
+            <div class="card card-cart" id="area-carrinho">
                 <div class="cart-header">
                     <h2>🛒 Carrinho</h2>
                     <button class="btn-clear" onclick="app.clearCart()">Limpar</button>
@@ -142,7 +149,7 @@
                     📡 FINALIZAR E ENVIAR
                 </button>
 
-                <div class="mt-30 border-top pt-20">
+                <div class="mt-30 border-top pt-20" id="area-producao">
                     <button class="btn btn-secondary btn-glow" onclick="app.calculateCartProduction()">
                         🛠️ Calcular Produção do Pedido
                     </button>
@@ -187,8 +194,23 @@
 
 <div id="toast-container"></div>
 
+<div id="tutorial-box" class="hidden">
+    <div class="tut-header">
+        <div id="tut-title">Título</div>
+        <div id="tut-progress">1/7</div>
+    </div>
+    <div id="tut-text">Explicação aqui...</div>
+    <div class="tut-buttons">
+        <button class="btn-tut-text" onclick="app.endTutorial()">Pular</button>
+        <div class="tut-nav-group">
+            <button class="btn-tut-nav" id="btn-tut-prev" onclick="app.prevTutorialStep()" disabled>⬅ Voltar</button>
+            <button class="btn-tut-nav btn-tut-next" onclick="app.nextTutorialStep()">Próximo ➡</button>
+        </div>
+    </div>
+</div>
+
 <img src="gatinho.gif" alt="Mascote Gatinho" class="site-mascot">
 
-<script src="script.js?v=12.1"></script>
+<script src="script.js?v=12.3"></script>
 </body>
 </html>
